@@ -1,1 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referência Rápida — Syscalls MIPS · OAC UEPG</title>
+<meta name="description" content="Referência rápida de syscalls MIPS — Coprocessador 0, Cause, EPC, eret, mfc0 e exemplos de código. OAC UEPG.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════
+   TOKENS
+═══════════════════════════════════ */
+:root {
+  --bg:      #f5f2eb;
+  --bg2:     #edeae2;
+  --bg3:     #e3dfd5;
+  --ink:     #1a1915;
+  --ink2:    #4a4840;
+  --ink3:    #8a8780;
+  --rule:    rgba(26,25,21,0.12);
+  --orange:  #c94f00;
+  --teal:    #006b5c;
+  --blue:    #0a4a8a;
+  --purple:  #5a2d8a;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+  --nav-h: 52px;
+}
 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════
+   NAV
+═══════════════════════════════════ */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--nav-h);
+  background: rgba(245,242,235,0.93);
+  backdrop-filter: blur(14px);
+  border-bottom: 1.5px solid var(--ink);
+  display: flex; align-items: center;
+  padding: 0 40px; gap: 0;
+}
+.nav-brand {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; color: var(--orange);
+  margin-right: 28px; white-space: nowrap;
+}
+.nav-links {
+  display: flex; gap: 2px; flex: 1; overflow-x: auto;
+}
+.nav-links a {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;
+  color: var(--ink3); text-decoration: none;
+  padding: 5px 11px; border-radius: 3px; white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.nav-links a:hover { background: var(--bg3); color: var(--ink); }
+.nav-links a.active { background: var(--ink); color: var(--bg); }
+.nav-back {
+  font-family: var(--mono); font-size: 11px; color: var(--ink3);
+  text-decoration: none; letter-spacing: 0.04em;
+  padding: 5px 11px; border-radius: 3px;
+  border: 1px solid var(--rule); margin-left: 12px; white-space: nowrap;
+  transition: border-color .15s, color .15s;
+}
+.nav-back:hover { border-color: var(--ink3); color: var(--ink); }
+
+/* ═══════════════════════════════════
+   HERO
+═══════════════════════════════════ */
+.hero {
+  border-bottom: 1.5px solid var(--ink);
+  padding: 64px 40px 48px;
+}
+.hero-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: end; gap: 40px;
+}
+.hero-tag {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 14px;
+}
+.hero h1 {
+  font-size: clamp(30px, 4vw, 50px); font-weight: 800;
+  letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 16px;
+}
+.hero h1 em { font-style: normal; color: var(--orange); }
+.hero-desc {
+  font-size: 15px; color: var(--ink2); max-width: 520px; line-height: 1.75;
+}
+.hero-aside {
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink3);
+  text-align: right; line-height: 2.1;
+  border-left: 1.5px solid var(--rule); padding-left: 28px;
+}
+.hero-aside strong { color: var(--ink2); font-weight: 600; }
+
+/* ═══════════════════════════════════
+   PAGE
+═══════════════════════════════════ */
+.page { max-width: 1080px; margin: 0 auto; padding: 0 40px 100px; }
+
+/* ═══════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════ */
+.sec-head {
+  display: flex; align-items: center; gap: 14px;
+  margin: 60px 0 20px; padding-top: 4px;
+}
+.sec-num {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; color: var(--orange);
+  background: rgba(201,79,0,0.08); border: 1px solid rgba(201,79,0,0.22);
+  padding: 3px 9px; border-radius: 2px; white-space: nowrap;
+}
+.sec-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.sec-rule  { flex: 1; height: 1px; background: var(--rule); }
+.sec-desc  {
+  font-size: 13.5px; color: var(--ink2); margin-bottom: 18px;
+  max-width: 700px; line-height: 1.75;
+}
+
+/* ═══════════════════════════════════
+   TABLES
+═══════════════════════════════════ */
+.ref-table {
+  width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 4px;
+}
+.ref-table thead tr { border-bottom: 1.5px solid var(--ink); }
+.ref-table th {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink3);
+  padding: 8px 14px 8px 0; text-align: left;
+}
+.ref-table td {
+  padding: 9px 14px 9px 0; border-bottom: 1px solid var(--rule);
+  vertical-align: top; color: var(--ink2); line-height: 1.55;
+}
+.ref-table tr:last-child td { border-bottom: none; }
+.ref-table tbody tr:hover td { background: rgba(26,25,21,0.025); }
+.ref-table tr.hl td { background: rgba(201,79,0,0.055); }
+.ref-table tr.hl td:first-child { border-left: 3px solid var(--orange); padding-left: 10px; }
+
+.mono   { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+.code-o { font-family: var(--mono); font-size: 12.5px; color: var(--orange); font-weight: 700; }
+.code-t { font-family: var(--mono); font-size: 12.5px; color: var(--teal); }
+.code-b { font-family: var(--mono); font-size: 12.5px; color: var(--blue); }
+.code-p { font-family: var(--mono); font-size: 12.5px; color: var(--purple); }
+.bold   { font-weight: 700; color: var(--ink); }
+.dim    { color: var(--ink3); font-size: 12px; }
+
+/* table with groups */
+.tbl-group td {
+  padding: 6px 14px 6px 0; font-family: var(--mono); font-size: 9.5px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink3); background: var(--bg3); border-bottom: 1px solid var(--rule);
+}
+.tbl-group td:first-child { padding-left: 16px; }
+.ref-table .pl td:first-child,
+.ref-table .pl th:first-child { padding-left: 16px; }
+
+/* ═══════════════════════════════════
+   CARDS
+═══════════════════════════════════ */
+.info-card {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-left: 3px solid var(--orange); border-radius: 0 6px 6px 0;
+  padding: 13px 16px; font-size: 13px; color: var(--ink2);
+  line-height: 1.6; margin-top: 12px;
+}
+.info-card strong { color: var(--ink); }
+
+.addr-card {
+  background: var(--bg2); border: 1.5px solid var(--ink);
+  border-radius: 6px; padding: 18px 22px;
+  display: flex; align-items: center; gap: 22px; margin-top: 4px;
+}
+.addr-val {
+  font-family: var(--mono); font-size: 22px; font-weight: 700;
+  color: var(--blue); letter-spacing: 0.04em; white-space: nowrap;
+}
+.addr-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+.addr-desc strong { color: var(--ink); }
+
+/* ═══════════════════════════════════
+   BITS DIAGRAM
+═══════════════════════════════════ */
+.bits-row {
+  display: flex; font-family: var(--mono); font-size: 11px;
+  margin: 14px 0 8px; overflow-x: auto;
+}
+.bit-cell {
+  border: 1px solid var(--rule); border-right: none;
+  padding: 6px 10px; text-align: center; min-width: 52px; line-height: 1.4;
+}
+.bit-cell:last-child { border-right: 1px solid var(--rule); }
+.bit-num  { font-size: 9px; color: var(--ink3); display: block; }
+.bit-name { font-weight: 700; }
+.bl-o  { background: rgba(201,79,0,0.07); } .bl-o .bit-name { color: var(--orange); }
+.bl-t  { background: rgba(0,107,92,0.07); } .bl-t .bit-name { color: var(--teal); }
+.bl-b  { background: rgba(10,74,138,0.07);} .bl-b .bit-name { color: var(--blue); }
+.bl-dim{ background: var(--bg2); }           .bl-dim .bit-name{ color: var(--ink3); }
+
+/* ═══════════════════════════════════
+   TWO COLUMNS
+═══════════════════════════════════ */
+.two-col {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 28px; align-items: start;
+}
+
+/* ═══════════════════════════════════
+   CODE CARDS (light — for mfc0 examples)
+═══════════════════════════════════ */
+.code-card {
+  background: var(--bg3); border: 1px solid var(--rule);
+  border-radius: 6px; overflow: hidden; margin-top: 4px;
+}
+.code-card-head {
+  padding: 7px 14px; background: var(--bg2);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3);
+}
+.code-card pre {
+  padding: 16px; font-family: var(--mono); font-size: 12.5px;
+  line-height: 2.0; overflow-x: auto; color: var(--ink);
+}
+.code-card .c  { color: var(--ink3); font-style: italic; }
+.code-card .k  { color: var(--orange); font-weight: 700; }
+.code-card .r  { color: var(--teal); }
+.code-card .v  { color: var(--purple); }
+.code-card .addr { color: var(--blue); }
+
+/* ═══════════════════════════════════
+   CODE BLOCKS (dark — for assembly examples)
+═══════════════════════════════════ */
+.code-block {
+  background: var(--ink); border-radius: 8px; overflow: hidden;
+}
+.code-block-head {
+  padding: 8px 18px; background: rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(245,242,235,0.4);
+}
+.code-block pre {
+  padding: 18px; font-family: var(--mono); font-size: 12.5px;
+  line-height: 1.95; overflow-x: auto; color: #c8d8e8;
+}
+.code-block .ln  { color: #404850; user-select: none; margin-right: 18px; }
+.code-block .c   { color: #505860; font-style: italic; }
+.code-block .k   { color: #f0a500; font-weight: 700; }
+.code-block .r   { color: #4ecba0; }
+.code-block .v   { color: #b89cfa; }
+.code-block .lbl { color: #f0c070; }
+
+/* ═══════════════════════════════════
+   CAUSE GRID
+═══════════════════════════════════ */
+.cause-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr));
+  gap: 10px; margin-top: 16px;
+}
+.cause-card {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-radius: 6px; padding: 14px 16px; transition: border-color .15s;
+}
+.cause-card:hover { border-color: var(--ink3); }
+.cause-card.hl { border-color: rgba(201,79,0,.45); background: rgba(201,79,0,.05); }
+.cause-n    { font-family: var(--mono); font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--blue); }
+.cause-card.hl .cause-n { color: var(--orange); }
+.cause-type { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.cause-desc { font-size: 12px; color: var(--ink3); }
+
+/* ═══════════════════════════════════
+   FOOTER
+═══════════════════════════════════ */
+footer {
+  border-top: 1.5px solid var(--ink); margin-top: 72px; padding-top: 18px;
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  font-family: var(--mono); font-size: 10px; color: var(--ink3); letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════ */
+@media (max-width: 720px) {
+  nav, .hero, .page { padding-left: 20px; padding-right: 20px; }
+  .nav-back { display: none; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-aside { display: none; }
+  .two-col { grid-template-columns: 1fr; }
+  .addr-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ NAV ══════════════════ -->
+<nav id="top-nav">
+  <span class="nav-brand">OAC · REF</span>
+  <div class="nav-links">
+    <a href="#causas"     class="nl">Causas</a>
+    <a href="#coproc"     class="nl">Coprocessador 0</a>
+    <a href="#handler"    class="nl">Handler / eret</a>
+    <a href="#mfc0"       class="nl">mfc0 / mtc0</a>
+    <a href="#fluxo"      class="nl">Fluxo</a>
+    <a href="#servicos"   class="nl">Serviços MARS</a>
+    <a href="#exemplos"   class="nl">Exemplos</a>
+  </div>
+  <a href="../index.html" class="nav-back">← disciplina</a>
+</nav>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="hero-tag">Capítulo 8 · Referência rápida</p>
+      <h1>Syscalls <em>MIPS</em><br>— Referência</h1>
+      <p class="hero-desc">
+        Códigos de exceção, registradores do Coprocessador 0, instrução <code style="font-family:var(--mono);color:var(--orange)">eret</code>, acesso via <code style="font-family:var(--mono);color:var(--orange)">mfc0</code>/<code style="font-family:var(--mono);color:var(--orange)">mtc0</code>, tabela de serviços MARS e exemplos de código comentados.
+      </p>
+    </div>
+    <div class="hero-aside">
+      Organização e Arquitetura<br>de Computadores<br>
+      ──<br>
+      <strong>UEPG · DEINFO</strong><br>
+      Prof. Dr. Luciano J. Senger<br>
+      ──<br>
+      MIPS R2000/R3000<br>
+      Simulador MARS
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════
+     01 — CAUSAS DE EXCEÇÃO
+══════════════════════════════════════ -->
+<section id="causas">
+  <div class="sec-head">
+    <span class="sec-num">01</span>
+    <span class="sec-title">Códigos de exceção — registrador Cause ($13)</span>
+    <span class="sec-rule"></span>
+  </div>
+  <p class="sec-desc">Todo evento excepcional — inclusive syscalls — é tratado pelo mesmo mecanismo. O campo ExcCode (bits 6–2) do Cause diferencia os casos pelo código numérico.</p>
+
+  <div class="cause-grid">
+    <div class="cause-card"><div class="cause-n">0</div><div class="cause-type">Interrupção externa</div><div class="cause-desc">Dispositivo de E/S sinalizou evento (assíncrona)</div></div>
+    <div class="cause-card"><div class="cause-n">4</div><div class="cause-type">AdEL — erro de endereço</div><div class="cause-desc">Endereço inválido ou desalinhado em load</div></div>
+    <div class="cause-card"><div class="cause-n">5</div><div class="cause-type">AdES — erro de endereço</div><div class="cause-desc">Endereço inválido ou desalinhado em store</div></div>
+    <div class="cause-card hl"><div class="cause-n">8</div><div class="cause-type">Syscall ← este!</div><div class="cause-desc">Instrução syscall — pedido de serviço ao SO</div></div>
+    <div class="cause-card"><div class="cause-n">10</div><div class="cause-type">RI — instrução reservada</div><div class="cause-desc">Opcode inválido ou não implementado</div></div>
+    <div class="cause-card"><div class="cause-n">12</div><div class="cause-type">Ov — overflow aritmético</div><div class="cause-desc">Resultado de add/sub não cabe em 32 bits</div></div>
+    <div class="cause-card"><div class="cause-n">13</div><div class="cause-type">Tr — trap</div><div class="cause-desc">Instrução teq/tne com condição verdadeira</div></div>
+  </div>
+
+  <div class="info-card">
+    <strong>Regra prática:</strong> se o código for <strong>8</strong>, não é erro — é pedido de serviço. O SO lê <span class="code-o">$v0</span> e retorna normalmente via <span class="code-o">eret</span>. Em todos os outros casos de erro, o MARS encerra o programa.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     02 — COPROCESSADOR 0
+══════════════════════════════════════ -->
+<section id="coproc">
+  <div class="sec-head">
+    <span class="sec-num">02</span>
+    <span class="sec-title">Registradores do Coprocessador 0</span>
+    <span class="sec-rule"></span>
+  </div>
+  <p class="sec-desc">O Coprocessador 0 é o núcleo de controle do MIPS — responsável por gerenciar exceções, modo de execução e estado do processador. Acessível apenas via <span class="code-o">mfc0</span> / <span class="code-o">mtc0</span>.</p>
+
+  <table class="ref-table">
+    <thead>
+      <tr>
+        <th style="width:90px">Reg.</th>
+        <th style="width:70px">Nº</th>
+        <th style="width:130px">Nome</th>
+        <th>Função</th>
+        <th style="width:190px">Momento de uso</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="hl">
+        <td><span class="code-o">$8</span></td>
+        <td class="mono">8</td>
+        <td class="bold">BadVAddr</td>
+        <td>Endereço que causou erro de acesso à memória (AdEL / AdES)</td>
+        <td class="dim">após exceção de endereço</td>
+      </tr>
+      <tr class="hl">
+        <td><span class="code-o">$12</span></td>
+        <td class="mono">12</td>
+        <td class="bold">Status</td>
+        <td>Modo de execução (KUc bit 1), interrupções (IEc bit 0), pilha KU/IE de 3 níveis</td>
+        <td class="dim">hardware altera a cada exceção</td>
+      </tr>
+      <tr class="hl">
+        <td><span class="code-o">$13</span></td>
+        <td class="mono">13</td>
+        <td class="bold">Cause</td>
+        <td>Código do tipo de exceção (bits 6–2). Lido pelo handler para identificar a causa</td>
+        <td class="dim">imediatamente após exceção</td>
+      </tr>
+      <tr class="hl">
+        <td><span class="code-o">$14</span></td>
+        <td class="mono">14</td>
+        <td class="bold">EPC</td>
+        <td>Endereço da instrução após a exceção. Usado pelo <span class="mono">eret</span> para retornar ao programa</td>
+        <td class="dim">hardware salva; eret restaura</td>
+      </tr>
+      <tr>
+        <td><span class="code-b">$15</span></td>
+        <td class="mono">15</td>
+        <td class="bold">PRId</td>
+        <td>Identificador do processador (fabricante e versão). Somente leitura</td>
+        <td class="dim">identificação do hardware</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:24px">
+    <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:8px;letter-spacing:0.07em;">STATUS ($12) — bits relevantes e pilha de 3 níveis</div>
+    <div class="bits-row">
+      <div class="bit-cell bl-dim"><span class="bit-num">31–6</span><span class="bit-name">···</span></div>
+      <div class="bit-cell bl-b"><span class="bit-num">5</span><span class="bit-name">KUp</span></div>
+      <div class="bit-cell bl-b"><span class="bit-num">4</span><span class="bit-name">IEp</span></div>
+      <div class="bit-cell bl-t"><span class="bit-num">3</span><span class="bit-name">KUo</span></div>
+      <div class="bit-cell bl-t"><span class="bit-num">2</span><span class="bit-name">IEo</span></div>
+      <div class="bit-cell bl-o"><span class="bit-num">1</span><span class="bit-name">KUc</span></div>
+      <div class="bit-cell bl-o"><span class="bit-num">0</span><span class="bit-name">IEc</span></div>
+    </div>
+    <table class="ref-table" style="font-size:13px;margin-top:8px">
+      <thead><tr><th style="width:56px">Bits</th><th style="width:72px">Campo</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><span class="code-o">1</span></td><td class="mono">KUc</td><td><strong>0</strong> = modo kernel (atual) &nbsp;·&nbsp; <strong>1</strong> = modo usuário. Hardware zera ao entrar na exceção; <span class="mono">eret</span> restaura para 1</td></tr>
+        <tr><td><span class="code-o">0</span></td><td class="mono">IEc</td><td><strong>0</strong> = interrupções desabilitadas &nbsp;·&nbsp; <strong>1</strong> = habilitadas. Hardware zera para proteger o handler de novas exceções</td></tr>
+        <tr><td><span class="code-t">3–2</span></td><td class="mono">KUo/IEo</td><td>Estado <em>anterior</em> — empurrado automaticamente quando nova exceção ocorre dentro do handler (nível 2)</td></tr>
+        <tr><td><span class="code-b">5–4</span></td><td class="mono">KUp/IEp</td><td>Estado <em>mais antigo</em> — terceiro nível da pilha. Uma terceira exceção sobrescreve este valor; ele é perdido</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     03 — HANDLER E ERET
+══════════════════════════════════════ -->
+<section id="handler">
+  <div class="sec-head">
+    <span class="sec-num">03</span>
+    <span class="sec-title">Endereço do handler e instrução eret</span>
+    <span class="sec-rule"></span>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:10px;letter-spacing:0.07em;">ENDEREÇO FIXO DO EXCEPTION HANDLER</div>
+      <div class="addr-card">
+        <div class="addr-val">0x80000180</div>
+        <div class="addr-desc">Endereço <strong>fixo em hardware</strong> para onde o PC é desviado a cada exceção. O SO carrega o handler aqui durante a inicialização.</div>
+      </div>
+      <div class="info-card">
+        O endereço fica no espaço <strong>kseg1</strong> — acessível apenas em modo kernel, não cacheável. Um programa de usuário não pode ler nem escrever nesse endereço.
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:10px;letter-spacing:0.07em;">INSTRUÇÃO eret — exception return</div>
+      <table class="ref-table">
+        <thead><tr><th style="width:110px">Campo</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td class="dim">Sintaxe</td><td><span class="code-o">eret</span></td></tr>
+          <tr><td class="dim">Operação</td><td class="mono" style="font-size:12px">PC ← EPC &nbsp;·&nbsp; KUc ← 1 &nbsp;·&nbsp; IEc ← 1</td></tr>
+          <tr><td class="dim">Efeito</td><td>Restaura modo usuário e retorna ao programa</td></tr>
+          <tr><td class="dim">Quem usa</td><td>Exclusivamente o kernel</td></tr>
+          <tr><td class="dim">Atomicidade</td><td>As três operações ocorrem em um único ciclo</td></tr>
+        </tbody>
+      </table>
+      <div class="info-card">
+        <strong>Por que não $ra?</strong> $ra é acessível pelo programa de usuário — o SO não pode confiar nele. O EPC fica no Coprocessador 0, protegido, só acessível pelo kernel.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     04 — mfc0 / mtc0
+══════════════════════════════════════ -->
+<section id="mfc0">
+  <div class="sec-head">
+    <span class="sec-num">04</span>
+    <span class="sec-title">Instruções mfc0 e mtc0 — acesso ao Coprocessador 0</span>
+    <span class="sec-rule"></span>
+  </div>
+
+  <table class="ref-table" style="margin-bottom:20px">
+    <thead>
+      <tr>
+        <th style="width:190px">Instrução</th>
+        <th style="width:240px">Operação</th>
+        <th>Descrição</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="code-o">mfc0 $rt, $rd</span></td>
+        <td><span class="mono">$rt ← Coproc0[$rd]</span></td>
+        <td><strong>Move From Coprocessor 0</strong> — copia registrador do Coproc0 para registrador inteiro da CPU</td>
+      </tr>
+      <tr>
+        <td><span class="code-o">mtc0 $rt, $rd</span></td>
+        <td><span class="mono">Coproc0[$rd] ← $rt</span></td>
+        <td><strong>Move To Coprocessor 0</strong> — copia registrador inteiro para registrador do Coproc0</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="two-col">
+    <div class="code-card">
+      <div class="code-card-head">identificar causa da exceção</div>
+      <pre><span class="c"># início do exception handler</span>
+<span class="k">mfc0</span> <span class="r">$k0</span>, <span class="v">$13</span>       <span class="c"># lê Cause → $k0</span>
+<span class="k">andi</span> <span class="r">$k0</span>, <span class="r">$k0</span>, <span class="addr">0x3C</span>  <span class="c"># isola bits 5–2</span>
+<span class="k">srl</span>  <span class="r">$k0</span>, <span class="r">$k0</span>, <span class="v">2</span>     <span class="c"># desloca → código</span>
+<span class="c"># $k0 == 8 → era syscall</span>
+<span class="c"># $k0 == 0 → era interrupção</span></pre>
+    </div>
+    <div class="code-card">
+      <div class="code-card-head">desabilitar interrupções no handler</div>
+      <pre><span class="c"># protege o handler de novas exceções</span>
+<span class="k">mfc0</span> <span class="r">$k0</span>, <span class="v">$12</span>        <span class="c"># lê Status</span>
+<span class="k">ori</span>  <span class="r">$k1</span>, <span class="r">$k0</span>, <span class="addr">0x1</span>   <span class="c"># prepara máscara</span>
+<span class="k">xori</span> <span class="r">$k1</span>, <span class="r">$k1</span>, <span class="addr">0x1</span>   <span class="c"># zera bit IEc</span>
+<span class="k">mtc0</span> <span class="r">$k1</span>, <span class="v">$12</span>        <span class="c"># grava Status</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     05 — FLUXO COMPLETO
+══════════════════════════════════════ -->
+<section id="fluxo">
+  <div class="sec-head">
+    <span class="sec-num">05</span>
+    <span class="sec-title">Fluxo completo — quem faz o quê em cada etapa</span>
+    <span class="sec-rule"></span>
+  </div>
+
+  <table class="ref-table">
+    <thead>
+      <tr>
+        <th style="width:32px">#</th>
+        <th style="width:110px">Quem age</th>
+        <th style="width:210px">Ação</th>
+        <th>Detalhe</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="code-t">1</span></td>
+        <td class="dim">programa</td>
+        <td class="bold">Prepara registradores</td>
+        <td><span class="code-o">li $v0, N</span> — código do serviço &nbsp;·&nbsp; <span class="code-t">$a0–$a3</span> — argumentos</td>
+      </tr>
+      <tr>
+        <td><span class="code-t">2</span></td>
+        <td class="dim">programa</td>
+        <td class="bold">Executa syscall</td>
+        <td>Dispara exceção interna código <strong>8</strong></td>
+      </tr>
+      <tr>
+        <td><span class="code-t">3</span></td>
+        <td class="dim" style="color:var(--orange)">hardware</td>
+        <td class="bold">Salva EPC</td>
+        <td><span class="mono">EPC ← PC + 4</span> — guarda o endereço de retorno</td>
+      </tr>
+      <tr>
+        <td><span class="code-t">4</span></td>
+        <td class="dim" style="color:var(--orange)">hardware</td>
+        <td class="bold">Grava Cause e Status</td>
+        <td><span class="mono">Cause ← 8</span> &nbsp;·&nbsp; zera <span class="mono">KUc</span> e <span class="mono">IEc</span> no Status</td>
+      </tr>
+      <tr>
+        <td><span class="code-t">5</span></td>
+        <td class="dim" style="color:var(--orange)">hardware</td>
+        <td class="bold">Desvia PC</td>
+        <td><span class="mono">PC ← <span class="code-b">0x80000180</span></span> — entra no exception handler</td>
+      </tr>
+      <tr>
+        <td><span class="code-t">6</span></td>
+        <td class="dim">kernel</td>
+        <td class="bold">Lê Cause</td>
+        <td><span class="code-o">mfc0 $k0, $13</span> — confirma código 8 (é syscall, não erro)</td>
+      </tr>
+      <tr>
+        <td><span class="code-t">7</span></td>
+        <td class="dim">kernel</td>
+        <td class="bold">Despacha por $v0</td>
+        <td>Lê <span class="code-o">$v0</span> e executa a rotina interna correspondente</td>
+      </tr>
+      <tr>
+        <td><span class="code-t">8</span></td>
+        <td class="dim">kernel</td>
+        <td class="bold">Executa o serviço</td>
+        <td>Usa <span class="code-t">$a0–$a3</span> como argumentos; resultado em <span class="code-o">$v0</span> se houver</td>
+      </tr>
+      <tr>
+        <td><span class="code-t">9</span></td>
+        <td class="dim">kernel</td>
+        <td class="bold">Executa eret</td>
+        <td><span class="mono">PC ← EPC</span> &nbsp;·&nbsp; restaura <span class="mono">KUc = 1</span> e <span class="mono">IEc = 1</span> — volta ao programa</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════
+     06 — SERVIÇOS MARS
+══════════════════════════════════════ -->
+<section id="servicos">
+  <div class="sec-head">
+    <span class="sec-num">06</span>
+    <span class="sec-title">Serviços disponíveis no MARS — tabela completa</span>
+    <span class="sec-rule"></span>
+  </div>
+  <p class="sec-desc">Carregue o código do serviço em <span class="code-o">$v0</span> e os argumentos nos registradores indicados <em>antes</em> de executar <span class="code-o">syscall</span>. Resultados ficam disponíveis após o retorno do SO.</p>
+
+  <div style="border:1px solid var(--rule);border-radius:10px;overflow:hidden;">
+    <table class="ref-table" style="margin-bottom:0">
+      <thead>
+        <tr class="pl">
+          <th style="width:55px">$v0</th>
+          <th style="width:155px">Serviço</th>
+          <th style="width:270px">Parâmetros de entrada</th>
+          <th>Resultado / observação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="tbl-group"><td colspan="4">Saída</td></tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">1</span></td>
+          <td class="bold mono">print_int</td>
+          <td><span class="code-t">$a0</span> = inteiro (32 bits)</td>
+          <td class="dim">Imprime o inteiro no console</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">2</span></td>
+          <td class="bold mono">print_float</td>
+          <td><span class="code-t">$f12</span> = float (precisão simples)</td>
+          <td class="dim">Imprime o float no console</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">3</span></td>
+          <td class="bold mono">print_double</td>
+          <td><span class="code-t">$f12</span> = double (precisão dupla)</td>
+          <td class="dim">Imprime o double no console</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">4</span></td>
+          <td class="bold mono">print_string</td>
+          <td><span class="code-t">$a0</span> = endereço da string</td>
+          <td class="dim">Imprime string terminada em <span class="mono">\0</span></td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">11</span></td>
+          <td class="bold mono">print_char</td>
+          <td><span class="code-t">$a0</span> = código ASCII do caractere</td>
+          <td class="dim">Imprime um único caractere</td>
+        </tr>
+
+        <tr class="tbl-group"><td colspan="4">Entrada</td></tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">5</span></td>
+          <td class="bold mono">read_int</td>
+          <td class="dim">—</td>
+          <td><span class="code-p">$v0</span> = inteiro lido do teclado</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">6</span></td>
+          <td class="bold mono">read_float</td>
+          <td class="dim">—</td>
+          <td><span class="code-p">$f0</span> = float lido do teclado</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">7</span></td>
+          <td class="bold mono">read_double</td>
+          <td class="dim">—</td>
+          <td><span class="code-p">$f0</span> = double lido do teclado</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">8</span></td>
+          <td class="bold mono">read_string</td>
+          <td><span class="code-t">$a0</span> = buffer &nbsp;·&nbsp; <span class="code-t">$a1</span> = tamanho máx.</td>
+          <td class="dim">Lê string do teclado (máx. $a1−1 chars + <span class="mono">\0</span>)</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">12</span></td>
+          <td class="bold mono">read_char</td>
+          <td class="dim">—</td>
+          <td><span class="code-p">$v0</span> = código ASCII do caractere lido</td>
+        </tr>
+
+        <tr class="tbl-group"><td colspan="4">Memória e controle</td></tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">9</span></td>
+          <td class="bold mono">sbrk</td>
+          <td><span class="code-t">$a0</span> = bytes a alocar no heap</td>
+          <td><span class="code-p">$v0</span> = endereço do bloco alocado</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">10</span></td>
+          <td class="bold mono">exit</td>
+          <td class="dim">—</td>
+          <td class="dim">Encerra o programa normalmente</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">17</span></td>
+          <td class="bold mono">exit2</td>
+          <td><span class="code-t">$a0</span> = código de saída</td>
+          <td class="dim">Encerra com código de retorno específico</td>
+        </tr>
+
+        <tr class="tbl-group"><td colspan="4">Arquivo (MARS estendido)</td></tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">13</span></td>
+          <td class="bold mono">open</td>
+          <td><span class="code-t">$a0</span> = path &nbsp;·&nbsp; <span class="code-t">$a1</span> = flags &nbsp;·&nbsp; <span class="code-t">$a2</span> = modo</td>
+          <td><span class="code-p">$v0</span> = descritor (−1 se erro)</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">14</span></td>
+          <td class="bold mono">read</td>
+          <td><span class="code-t">$a0</span> = fd &nbsp;·&nbsp; <span class="code-t">$a1</span> = buffer &nbsp;·&nbsp; <span class="code-t">$a2</span> = bytes</td>
+          <td><span class="code-p">$v0</span> = bytes lidos (−1 se erro)</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">15</span></td>
+          <td class="bold mono">write</td>
+          <td><span class="code-t">$a0</span> = fd &nbsp;·&nbsp; <span class="code-t">$a1</span> = buffer &nbsp;·&nbsp; <span class="code-t">$a2</span> = bytes</td>
+          <td><span class="code-p">$v0</span> = bytes escritos (−1 se erro)</td>
+        </tr>
+        <tr>
+          <td style="padding-left:16px"><span class="code-o">16</span></td>
+          <td class="bold mono">close</td>
+          <td><span class="code-t">$a0</span> = fd</td>
+          <td class="dim">Fecha o descritor de arquivo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-card">
+    <strong>Dica MARS:</strong> para serviços de leitura (5, 6, 7, 8, 12), ative <em>Settings → Popup dialog for input syscalls</em> para que o MARS abra uma janela de entrada em vez de exigir digitação no console integrado.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     07 — EXEMPLOS DE CÓDIGO
+══════════════════════════════════════ -->
+<section id="exemplos">
+  <div class="sec-head">
+    <span class="sec-num">07</span>
+    <span class="sec-title">Exemplos de código comentados</span>
+    <span class="sec-rule"></span>
+  </div>
+  <p class="sec-desc">Programas completos prontos para copiar e testar no simulador MARS.</p>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <div class="code-block">
+      <div class="code-block-head">ex01 — hello.asm · print_string + exit</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">msg</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Ola, Mundo!\n"</span>
+
+<span class="ln"> 4</span><span class="k">.text</span>
+<span class="ln"> 5</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 6</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 7</span>    <span class="k">la</span>  <span class="r">$a0</span>, msg  <span class="c"># arg: endereço</span>
+<span class="ln"> 8</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>    <span class="c"># print_string</span>
+<span class="ln"> 9</span>    <span class="k">syscall</span>
+
+<span class="ln">11</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">10</span>   <span class="c"># exit</span>
+<span class="ln">12</span>    <span class="k">syscall</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-head">ex02 — print_int · imprimir inteiro</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">lab</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Valor: "</span>
+
+<span class="ln"> 4</span><span class="k">.text</span>
+<span class="ln"> 5</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 6</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 7</span>    <span class="k">la</span>  <span class="r">$a0</span>, lab  <span class="c"># imprime rótulo</span>
+<span class="ln"> 8</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>    <span class="c"># print_string</span>
+<span class="ln"> 9</span>    <span class="k">syscall</span>
+
+<span class="ln">11</span>    <span class="k">li</span>  <span class="r">$a0</span>, <span class="v">42</span>   <span class="c"># valor a imprimir</span>
+<span class="ln">12</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">1</span>    <span class="c"># print_int</span>
+<span class="ln">13</span>    <span class="k">syscall</span>
+
+<span class="ln">15</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">10</span>   <span class="c"># exit</span>
+<span class="ln">16</span>    <span class="k">syscall</span></pre>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <div class="code-block">
+      <div class="code-block-head">ex03 — read_int · lê e imprime inteiro</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">p1</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Digite um numero: "</span>
+<span class="ln"> 3</span><span class="lbl">p2</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Voce digitou: "</span>
+
+<span class="ln"> 5</span><span class="k">.text</span>
+<span class="ln"> 6</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 7</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 8</span>    <span class="k">la</span>  <span class="r">$a0</span>, p1  <span class="c"># prompt</span>
+<span class="ln"> 9</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>   <span class="c"># print_string</span>
+<span class="ln">10</span>    <span class="k">syscall</span>
+
+<span class="ln">12</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">5</span>   <span class="c"># read_int → $v0</span>
+<span class="ln">13</span>    <span class="k">syscall</span>
+<span class="ln">14</span>    <span class="k">move</span> <span class="r">$s0</span>,<span class="r">$v0</span> <span class="c"># salva em $s0</span>
+
+<span class="ln">16</span>    <span class="k">la</span>  <span class="r">$a0</span>, p2  <span class="c"># resposta</span>
+<span class="ln">17</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>   <span class="c"># print_string</span>
+<span class="ln">18</span>    <span class="k">syscall</span>
+
+<span class="ln">20</span>    <span class="k">move</span> <span class="r">$a0</span>,<span class="r">$s0</span> <span class="c"># recupera valor</span>
+<span class="ln">21</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">1</span>   <span class="c"># print_int</span>
+<span class="ln">22</span>    <span class="k">syscall</span>
+
+<span class="ln">24</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">10</span>  <span class="c"># exit</span>
+<span class="ln">25</span>    <span class="k">syscall</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-head">ex04 — read_string · lê e ecoa string</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">prompt</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Seu nome: "</span>
+<span class="ln"> 3</span><span class="lbl">saudac</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Ola, "</span>
+<span class="ln"> 4</span><span class="lbl">buf</span><span class="k">:</span>    <span class="k">.space</span>  <span class="v">32</span>  <span class="c"># buffer 32 bytes</span>
+
+<span class="ln"> 6</span><span class="k">.text</span>
+<span class="ln"> 7</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 8</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 9</span>    <span class="k">la</span>  <span class="r">$a0</span>, prompt <span class="c"># prompt</span>
+<span class="ln">10</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>      <span class="c"># print_string</span>
+<span class="ln">11</span>    <span class="k">syscall</span>
+
+<span class="ln">13</span>    <span class="k">la</span>  <span class="r">$a0</span>, buf    <span class="c"># buffer destino</span>
+<span class="ln">14</span>    <span class="k">li</span>  <span class="r">$a1</span>, <span class="v">32</span>     <span class="c"># tamanho máximo</span>
+<span class="ln">15</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">8</span>      <span class="c"># read_string</span>
+<span class="ln">16</span>    <span class="k">syscall</span>
+
+<span class="ln">18</span>    <span class="k">la</span>  <span class="r">$a0</span>, saudac <span class="c"># "Ola, "</span>
+<span class="ln">19</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>      <span class="c"># print_string</span>
+<span class="ln">20</span>    <span class="k">syscall</span>
+
+<span class="ln">22</span>    <span class="k">la</span>  <span class="r">$a0</span>, buf    <span class="c"># imprime nome</span>
+<span class="ln">23</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>      <span class="c"># print_string</span>
+<span class="ln">24</span>    <span class="k">syscall</span>
+
+<span class="ln">26</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">10</span>     <span class="c"># exit</span>
+<span class="ln">27</span>    <span class="k">syscall</span></pre>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-bottom:16px">
+    <div class="code-block-head">ex05 — soma de vetor · loop + print_int</div>
+    <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">vet</span><span class="k">:</span>  <span class="k">.word</span>   <span class="v">10</span>, <span class="v">20</span>, <span class="v">30</span>, <span class="v">40</span>, <span class="v">50</span>   <span class="c"># vetor de 5 inteiros</span>
+<span class="ln"> 3</span><span class="lbl">tam</span><span class="k">:</span>  <span class="k">.word</span>   <span class="v">5</span>                    <span class="c"># tamanho do vetor</span>
+<span class="ln"> 4</span><span class="lbl">msg</span><span class="k">:</span>  <span class="k">.asciiz</span> <span class="v">"Soma: "</span>
+
+<span class="ln"> 6</span><span class="k">.text</span>
+<span class="ln"> 7</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 8</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 9</span>    <span class="k">la</span>   <span class="r">$t0</span>, vet       <span class="c"># $t0 = ponteiro para vet[0]</span>
+<span class="ln">10</span>    <span class="k">lw</span>   <span class="r">$t1</span>, tam        <span class="c"># $t1 = tamanho</span>
+<span class="ln">11</span>    <span class="k">li</span>   <span class="r">$t2</span>, <span class="v">0</span>          <span class="c"># $t2 = acumulador (soma = 0)</span>
+<span class="ln">12</span>    <span class="k">li</span>   <span class="r">$t3</span>, <span class="v">0</span>          <span class="c"># $t3 = índice i = 0</span>
+
+<span class="ln">14</span><span class="lbl">loop</span><span class="k">:</span>
+<span class="ln">15</span>    <span class="k">bge</span>  <span class="r">$t3</span>, <span class="r">$t1</span>, <span class="lbl">fim</span>  <span class="c"># se i >= tam → termina</span>
+<span class="ln">16</span>    <span class="k">lw</span>   <span class="r">$t4</span>, <span class="v">0</span>(<span class="r">$t0</span>)     <span class="c"># $t4 = vet[i]</span>
+<span class="ln">17</span>    <span class="k">add</span>  <span class="r">$t2</span>, <span class="r">$t2</span>, <span class="r">$t4</span>  <span class="c"># soma += vet[i]</span>
+<span class="ln">18</span>    <span class="k">addi</span> <span class="r">$t0</span>, <span class="r">$t0</span>, <span class="v">4</span>   <span class="c"># avança ponteiro 4 bytes</span>
+<span class="ln">19</span>    <span class="k">addi</span> <span class="r">$t3</span>, <span class="r">$t3</span>, <span class="v">1</span>   <span class="c"># i++</span>
+<span class="ln">20</span>    <span class="k">j</span>    <span class="lbl">loop</span>
+
+<span class="ln">22</span><span class="lbl">fim</span><span class="k">:</span>
+<span class="ln">23</span>    <span class="k">la</span>   <span class="r">$a0</span>, msg        <span class="c"># imprime "Soma: "</span>
+<span class="ln">24</span>    <span class="k">li</span>   <span class="r">$v0</span>, <span class="v">4</span>
+<span class="ln">25</span>    <span class="k">syscall</span>
+
+<span class="ln">27</span>    <span class="k">move</span> <span class="r">$a0</span>, <span class="r">$t2</span>       <span class="c"># imprime resultado</span>
+<span class="ln">28</span>    <span class="k">li</span>   <span class="r">$v0</span>, <span class="v">1</span>          <span class="c"># print_int</span>
+<span class="ln">29</span>    <span class="k">syscall</span>
+
+<span class="ln">31</span>    <span class="k">li</span>   <span class="r">$v0</span>, <span class="v">10</span>         <span class="c"># exit</span>
+<span class="ln">32</span>    <span class="k">syscall</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-block-head">ex06 — read_char + print_char · lê e ecoa caractere</div>
+    <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">p1</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Digite uma letra: "</span>
+<span class="ln"> 3</span><span class="lbl">p2</span><span class="k">:</span> <span class="k">.asciiz</span> <span class="v">"Voce digitou: "</span>
+
+<span class="ln"> 5</span><span class="k">.text</span>
+<span class="ln"> 6</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 7</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 8</span>    <span class="k">la</span>  <span class="r">$a0</span>, p1    <span class="c"># prompt</span>
+<span class="ln"> 9</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>     <span class="c"># print_string</span>
+<span class="ln">10</span>    <span class="k">syscall</span>
+
+<span class="ln">12</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">12</span>    <span class="c"># read_char → $v0 = ASCII</span>
+<span class="ln">13</span>    <span class="k">syscall</span>
+<span class="ln">14</span>    <span class="k">move</span> <span class="r">$s0</span>,<span class="r">$v0</span>  <span class="c"># salva o caractere</span>
+
+<span class="ln">16</span>    <span class="k">la</span>  <span class="r">$a0</span>, p2    <span class="c"># "Voce digitou: "</span>
+<span class="ln">17</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">4</span>     <span class="c"># print_string</span>
+<span class="ln">18</span>    <span class="k">syscall</span>
+
+<span class="ln">20</span>    <span class="k">move</span> <span class="r">$a0</span>,<span class="r">$s0</span>  <span class="c"># $a0 = código ASCII</span>
+<span class="ln">21</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">11</span>    <span class="c"># print_char</span>
+<span class="ln">22</span>    <span class="k">syscall</span>
+
+<span class="ln">24</span>    <span class="k">li</span>  <span class="r">$v0</span>, <span class="v">10</span>    <span class="c"># exit</span>
+<span class="ln">25</span>    <span class="k">syscall</span></pre>
+  </div>
+</section>
+
+<footer>
+  <span>OAC · UEPG · DEINFO · Prof. Dr. Luciano J. Senger</span>
+  <span>MIPS R2000/R3000 · Simulador MARS</span>
+</footer>
+
+</div><!-- /page -->
+
+<script>
+const secs  = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.nl');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(a => a.classList.remove('active'));
+      const a = document.querySelector(`.nl[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
