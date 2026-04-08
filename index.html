@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organização e Arquitetura de Computadores — UEPG</title>
+<meta name="description" content="Materiais de aula da disciplina de Organização e Arquitetura de Computadores — UEPG · DEINFO · Prof. Dr. Luciano J. Senger.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #f5f2eb;
+  --bg2:    #edeae2;
+  --bg3:    #e3dfd5;
+  --ink:    #1a1915;
+  --ink2:   #4a4840;
+  --ink3:   #8a8780;
+  --rule:   rgba(26,25,21,0.12);
+  --orange: #c94f00;
+  --teal:   #006b5c;
+  --blue:   #0a4a8a;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  height: 50px;
+  background: rgba(245,242,235,0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1.5px solid var(--ink);
+  display: flex; align-items: center;
+  padding: 0 40px;
+  gap: 24px;
+}
+.nav-brand {
+  font-family: var(--mono);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--orange);
+  white-space: nowrap;
+}
+.nav-sep { width: 1px; height: 18px; background: var(--rule); }
+.nav-sub {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--ink3);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── HERO ── */
+.hero {
+  border-bottom: 1.5px solid var(--ink);
+  padding: 72px 40px 56px;
+}
+.hero-inner {
+  max-width: 1000px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: end; gap: 40px;
+}
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 14px;
+}
+.hero h1 {
+  font-size: clamp(30px, 4vw, 50px);
+  font-weight: 800; letter-spacing: -0.03em;
+  line-height: 1.05; margin-bottom: 16px;
+}
+.hero h1 em { font-style: normal; color: var(--orange); }
+.hero-desc {
+  font-size: 15px; color: var(--ink2);
+  max-width: 520px; line-height: 1.75;
+}
+.hero-aside {
+  font-family: var(--mono);
+  font-size: 10.5px; color: var(--ink3);
+  text-align: right; line-height: 2.1;
+  border-left: 1.5px solid var(--rule);
+  padding-left: 28px;
+}
+.hero-aside strong { color: var(--ink2); font-weight: 600; }
+
+/* ── PAGE ── */
+.page { max-width: 1000px; margin: 0 auto; padding: 0 40px 100px; }
+
+/* ── SECTION HEADERS ── */
+.sec-head {
+  display: flex; align-items: center; gap: 14px;
+  margin: 64px 0 24px; padding-top: 4px;
+}
+.sec-num {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; color: var(--orange);
+  background: rgba(201,79,0,0.08);
+  border: 1px solid rgba(201,79,0,0.22);
+  padding: 3px 9px; border-radius: 2px;
+}
+.sec-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.sec-rule  { flex: 1; height: 1px; background: var(--rule); }
+
+/* ── UNIT GRID ── */
+.unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.unit-card {
+  background: var(--bg2);
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+  position: relative;
+}
+.unit-card:hover {
+  border-color: var(--ink3);
+  transform: translateY(-2px);
+}
+.unit-card.available {
+  border-color: rgba(201,79,0,0.35);
+  background: var(--bg);
+}
+.unit-card.available:hover { border-color: var(--orange); }
+
+.unit-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 18px 10px;
+}
+.unit-num {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--ink3); letter-spacing: 0.08em;
+}
+.unit-card.available .unit-num { color: var(--orange); }
+
+.unit-badge {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px;
+}
+.badge-live  { background: rgba(201,79,0,0.1); color: var(--orange); border: 1px solid rgba(201,79,0,0.25); }
+.badge-soon  { background: rgba(26,25,21,0.06); color: var(--ink3);   border: 1px solid var(--rule); }
+
+.unit-title {
+  font-size: 15px; font-weight: 700;
+  padding: 0 18px 6px; line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.unit-desc {
+  font-size: 12.5px; color: var(--ink3);
+  padding: 0 18px 16px; line-height: 1.6;
+}
+.unit-footer {
+  border-top: 1px solid var(--rule);
+  padding: 10px 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.unit-link {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--orange); text-decoration: none;
+  letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 6px;
+  transition: gap 0.15s;
+}
+.unit-link:hover { gap: 10px; }
+.unit-link-arrow { font-size: 14px; }
+
+.unit-disabled .unit-link {
+  color: var(--ink3); cursor: default; pointer-events: none;
+}
+
+/* ── INFO STRIP ── */
+.info-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--ink);
+  border: 1.5px solid var(--ink);
+  border-radius: 8px; overflow: hidden;
+  margin-top: 48px;
+}
+.info-cell {
+  background: var(--bg);
+  padding: 20px 24px;
+}
+.info-label {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 6px;
+}
+.info-val {
+  font-size: 15px; font-weight: 700; line-height: 1.4;
+}
+.info-sub {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink3); margin-top: 2px;
+}
+
+/* ── TOOLS ── */
+.tools-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 4px;
+}
+.tool-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg2);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 8px 14px;
+  text-decoration: none; color: var(--ink2);
+  font-size: 13px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.tool-pill:hover { border-color: var(--ink3); background: var(--bg3); }
+.tool-pill-icon {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--orange); font-weight: 700;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1.5px solid var(--ink);
+  margin-top: 72px; padding-top: 18px;
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink3); letter-spacing: 0.04em;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 680px) {
+  nav, .hero, .page { padding-left: 20px; padding-right: 20px; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-aside { display: none; }
+  .info-strip { grid-template-columns: 1fr; }
+  footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">UEPG · DEINFO</span>
+  <span class="nav-sep"></span>
+  <span class="nav-sub">Prof. Dr. Luciano J. Senger</span>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="hero-tag">Engenharia de Computação · Materiais de Aula</p>
+      <h1>Organização e<br>Arquitetura de <em>Computadores</em></h1>
+      <p class="hero-desc">
+        Materiais de apoio, referências rápidas e exemplos de código para acompanhar as aulas. Selecione um capítulo para acessar o conteúdo interativo.
+      </p>
+    </div>
+    <div class="hero-aside">
+      Universidade Estadual<br>de Ponta Grossa<br>
+      ──<br>
+      <strong>DEINFO</strong><br>
+      Engenharia de Computação<br>
+      ──<br>
+      Prof. Dr. Luciano J. Senger
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- INFO STRIP -->
+  <div class="info-strip">
+    <div class="info-cell">
+      <div class="info-label">Arquitetura</div>
+      <div class="info-val">MIPS R2000/R3000</div>
+      <div class="info-sub">32 bits · RISC clássico</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-label">Simulador</div>
+      <div class="info-val">MARS 4.5</div>
+      <div class="info-sub">MIPS Assembler and Runtime Simulator</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-label">Linguagem</div>
+      <div class="info-val">Assembly MIPS</div>
+      <div class="info-sub">Linguagem de montagem · ISA MIPS</div>
+    </div>
+  </div>
+
+  <!-- CAPÍTULOS -->
+  <div class="sec-head">
+    <span class="sec-num">CAPÍTULOS</span>
+    <span class="sec-title">Materiais disponíveis</span>
+    <span class="sec-rule"></span>
+  </div>
+
+  <div class="unit-grid">
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 1</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Introdução à Arquitetura de Computadores</div>
+      <div class="unit-desc">Histórico, níveis de abstração, von Neumann, CISC vs. RISC.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link">
+          <span>Material indisponível</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 2</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Representação de Dados</div>
+      <div class="unit-desc">Inteiros com e sem sinal, complemento de 2, ponto flutuante IEEE 754.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 3</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Instruções MIPS — Fundamentos</div>
+      <div class="unit-desc">Formato R/I/J, registradores, operações aritméticas e lógicas.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 4</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Desvios e Estruturas de Controle</div>
+      <div class="unit-desc">Instruções de branch, saltos, laços e condicionais em assembly.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 5</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Memória e Endereçamento</div>
+      <div class="unit-desc">Organização da memória, load/store, segmentos .data e .text.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 6</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Subprogramas e Pilha</div>
+      <div class="unit-desc">Convenção de chamada MIPS, $ra, $sp, passagem de parâmetros.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 7</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Pipeline</div>
+      <div class="unit-desc">Estágios IF/ID/EX/MEM/WB, hazards de dados e controle, forwarding.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+    <div class="unit-card available">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 8</span>
+        <span class="unit-badge badge-live">disponível</span>
+      </div>
+      <div class="unit-title">Chamadas de Sistema — Syscalls</div>
+      <div class="unit-desc">Fluxo interativo, Coprocessador 0, registradores Cause/EPC/Status, mfc0, eret e exemplos.</div>
+      <div class="unit-footer">
+        <a class="unit-link" href="syscalls/index.html">
+          <span>Acessar material</span>
+          <span class="unit-link-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 9</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Exceções e Interrupções</div>
+      <div class="unit-desc">Mecanismo de exceção MIPS, Coprocessador 0 em detalhe, handler completo.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-top">
+        <span class="unit-num">CAP. 10</span>
+        <span class="unit-badge badge-soon">em breve</span>
+      </div>
+      <div class="unit-title">Hierarquia de Memória</div>
+      <div class="unit-desc">Cache, memória virtual, TLB, políticas de substituição.</div>
+      <div class="unit-footer unit-disabled">
+        <span class="unit-link"><span>Material indisponível</span></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FERRAMENTAS -->
+  <div class="sec-head">
+    <span class="sec-num">FERRAMENTAS</span>
+    <span class="sec-title">Recursos para as aulas práticas</span>
+    <span class="sec-rule"></span>
+  </div>
+
+  <div class="tools-row">
+    <a class="tool-pill" href="https://courses.missouristate.edu/KenVollmar/mars/" target="_blank" rel="noopener">
+      <span class="tool-pill-icon">MARS</span>
+      <span>Simulador MIPS (download)</span>
+    </a>
+    <a class="tool-pill" href="https://www.uepg.br" target="_blank" rel="noopener">
+      <span class="tool-pill-icon">UEPG</span>
+      <span>Site institucional</span>
+    </a>
+    <a class="tool-pill" href="https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_help.html" target="_blank" rel="noopener">
+      <span class="tool-pill-icon">ISA</span>
+      <span>Referência de instruções MIPS</span>
+    </a>
+    <a class="tool-pill" href="https://chortle.ccsu.edu/AssemblyTutorial/index.html" target="_blank" rel="noopener">
+      <span class="tool-pill-icon">TUT</span>
+      <span>Tutorial Assembly MIPS</span>
+    </a>
+  </div>
+
+  <footer>
+    <span>Organização e Arquitetura de Computadores · UEPG · DEINFO</span>
+    <span>Prof. Dr. Luciano J. Senger · Engenharia de Computação</span>
+  </footer>
+
+</div>
+</body>
+</html>
