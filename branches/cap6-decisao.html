@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cap. 6 — Instruções para Tomada de Decisão · OAC UEPG</title>
+<meta name="description" content="Desvios condicionais e incondicionais, slt, pseudo-instruções e exercícios — OAC UEPG.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #f5f2eb; --bg2: #edeae2; --bg3: #e3dfd5;
+  --ink:    #1a1915; --ink2: #4a4840; --ink3: #8a8780;
+  --rule:   rgba(26,25,21,0.12);
+  --orange: #c94f00; --teal: #006b5c; --blue: #0a4a8a; --purple: #5a2d8a;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Syne', sans-serif; --nav-h: 52px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 200; height: var(--nav-h); background: rgba(245,242,235,0.93); backdrop-filter: blur(14px); border-bottom: 1.5px solid var(--ink); display: flex; align-items: center; padding: 0 40px; gap: 0; }
+.nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--orange); margin-right: 28px; white-space: nowrap; }
+.nav-links { display: flex; gap: 2px; flex: 1; overflow-x: auto; }
+.nav-links a { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--ink3); text-decoration: none; padding: 5px 11px; border-radius: 3px; white-space: nowrap; transition: background .15s, color .15s; }
+.nav-links a:hover { background: var(--bg3); color: var(--ink); }
+.nav-links a.active { background: var(--ink); color: var(--bg); }
+.nav-back { font-family: var(--mono); font-size: 11px; color: var(--ink3); text-decoration: none; letter-spacing: .04em; padding: 5px 11px; border-radius: 3px; border: 1px solid var(--rule); margin-left: 12px; white-space: nowrap; transition: border-color .15s, color .15s; }
+.nav-back:hover { border-color: var(--ink3); color: var(--ink); }
+
+/* HERO */
+.hero { border-bottom: 1.5px solid var(--ink); padding: 64px 40px 48px; }
+.hero-inner { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 40px; }
+.hero-tag { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin-bottom: 14px; }
+.hero h1 { font-size: clamp(30px,4vw,50px); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin-bottom: 16px; }
+.hero h1 em { font-style: normal; color: var(--orange); }
+.hero-desc { font-size: 15px; color: var(--ink2); max-width: 520px; line-height: 1.75; }
+.hero-aside { font-family: var(--mono); font-size: 10.5px; color: var(--ink3); text-align: right; line-height: 2.1; border-left: 1.5px solid var(--rule); padding-left: 28px; }
+.hero-aside strong { color: var(--ink2); font-weight: 600; }
+
+/* PAGE */
+.page { max-width: 1080px; margin: 0 auto; padding: 0 40px 100px; }
+
+/* SECTIONS */
+.sec-head { display: flex; align-items: center; gap: 14px; margin: 60px 0 20px; padding-top: 4px; }
+.sec-num { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--orange); background: rgba(201,79,0,.08); border: 1px solid rgba(201,79,0,.22); padding: 3px 9px; border-radius: 2px; white-space: nowrap; }
+.sec-title { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+.sec-rule { flex: 1; height: 1px; background: var(--rule); }
+.sec-desc { font-size: 13.5px; color: var(--ink2); margin-bottom: 18px; max-width: 720px; line-height: 1.75; }
+
+/* TABLES */
+.ref-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 4px; }
+.ref-table thead tr { border-bottom: 1.5px solid var(--ink); }
+.ref-table th { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); padding: 8px 14px 8px 0; text-align: left; }
+.ref-table td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink2); line-height: 1.55; }
+.ref-table tr:last-child td { border-bottom: none; }
+.ref-table tbody tr:hover td { background: rgba(26,25,21,.025); }
+.ref-table tr.hl td { background: rgba(201,79,0,.055); }
+.ref-table tr.hl td:first-child { border-left: 3px solid var(--orange); padding-left: 10px; }
+.mono { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+.code-o { font-family: var(--mono); font-size: 12.5px; color: var(--orange); font-weight: 700; }
+.code-t { font-family: var(--mono); font-size: 12.5px; color: var(--teal); }
+.code-b { font-family: var(--mono); font-size: 12.5px; color: var(--blue); }
+.bold { font-weight: 700; color: var(--ink); }
+.dim { color: var(--ink3); font-size: 12px; }
+
+/* INSTR CARDS */
+.instr-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 12px; margin-top: 16px; }
+.instr-card { background: var(--bg2); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px; transition: border-color .15s; }
+.instr-card:hover { border-color: var(--ink3); }
+.instr-card.hl { border-color: rgba(201,79,0,.4); background: rgba(201,79,0,.04); }
+.instr-mnem { font-family: var(--mono); font-size: 20px; font-weight: 700; margin-bottom: 4px; color: var(--blue); }
+.instr-card.hl .instr-mnem { color: var(--orange); }
+.instr-syn { font-family: var(--mono); font-size: 11px; color: var(--ink3); margin-bottom: 8px; }
+.instr-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.instr-desc { font-size: 12px; color: var(--ink3); line-height: 1.6; }
+.instr-tag { display: inline-block; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; margin-top: 8px; }
+.tag-cond { background: rgba(0,107,92,.1); color: var(--teal); border: 1px solid rgba(0,107,92,.25); }
+.tag-uncond { background: rgba(201,79,0,.1); color: var(--orange); border: 1px solid rgba(201,79,0,.25); }
+.tag-cmp { background: rgba(90,45,138,.1); color: var(--purple); border: 1px solid rgba(90,45,138,.25); }
+
+/* CARDS */
+.info-card { background: var(--bg2); border: 1px solid var(--rule); border-left: 3px solid var(--orange); border-radius: 0 6px 6px 0; padding: 13px 16px; font-size: 13px; color: var(--ink2); line-height: 1.6; margin-top: 12px; }
+.info-card strong { color: var(--ink); }
+
+/* TWO COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+
+/* CODE BLOCKS dark */
+.code-block { background: var(--ink); border-radius: 8px; overflow: hidden; }
+.code-block-head { padding: 8px 18px; background: rgba(255,255,255,.06); border-bottom: 1px solid rgba(255,255,255,.07); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,242,235,.4); }
+.code-block pre { padding: 18px; font-family: var(--mono); font-size: 12.5px; line-height: 1.95; overflow-x: auto; color: #c8d8e8; }
+.code-block .ln { color: #404850; user-select: none; margin-right: 16px; }
+.code-block .c { color: #505860; font-style: italic; }
+.code-block .k { color: #f0a500; font-weight: 700; }
+.code-block .r { color: #4ecba0; }
+.code-block .v { color: #b89cfa; }
+.code-block .lbl { color: #f0c070; }
+
+/* C BLOCK light */
+.c-block { background: var(--bg3); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.c-block-head { padding: 8px 16px; background: var(--bg2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); }
+.c-block pre { padding: 16px 18px; font-family: var(--mono); font-size: 12.5px; line-height: 2.0; overflow-x: auto; color: var(--ink); }
+.c-block .ck { color: var(--blue); font-weight: 700; }
+.c-block .cv { color: var(--purple); }
+.c-block .cc { color: var(--ink3); font-style: italic; }
+
+/* PSEUDO TABLE */
+.pseudo-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.pseudo-table thead tr { border-bottom: 1.5px solid var(--ink); }
+.pseudo-table th { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); padding: 8px 14px 8px 0; text-align: left; }
+.pseudo-table td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: middle; color: var(--ink2); }
+.pseudo-table tr:last-child td { border-bottom: none; }
+.pseudo-table tbody tr:hover td { background: rgba(26,25,21,.025); }
+.eq-c { font-family: var(--mono); font-size: 13px; color: var(--blue); font-weight: 700; }
+.eq-asm { font-family: var(--mono); font-size: 12.5px; color: var(--orange); }
+
+/* EXERCISES */
+.ex-list { display: flex; flex-direction: column; gap: 20px; margin-top: 4px; }
+.ex-card { border: 1px solid var(--rule); border-left: 3px solid var(--orange); border-radius: 0 8px 8px 0; padding: 20px 22px; background: var(--bg2); }
+.ex-label { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
+.ex-text { font-size: 14px; color: var(--ink2); line-height: 1.7; margin-bottom: 14px; }
+.ex-text strong { color: var(--ink); }
+
+/* FOOTER */
+footer { border-top: 1.5px solid var(--ink); margin-top: 72px; padding-top: 18px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-family: var(--mono); font-size: 10px; color: var(--ink3); letter-spacing: .04em; }
+
+/* RESPONSIVE */
+@media (max-width: 720px) {
+  nav, .hero, .page { padding-left: 20px; padding-right: 20px; }
+  .nav-back { display: none; }
+  .hero-inner, .two-col { grid-template-columns: 1fr; }
+  .hero-aside { display: none; }
+  .instr-grid { grid-template-columns: 1fr 1fr; }
+  footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<nav id="top-nav">
+  <span class="nav-brand">OAC · CAP. 6</span>
+  <div class="nav-links">
+    <a href="#instrucoes" class="nl">Instruções</a>
+    <a href="#desvios"    class="nl">Desvios</a>
+    <a href="#comparacao" class="nl">Comparação</a>
+    <a href="#pseudo"     class="nl">Pseudo-instruções</a>
+    <a href="#exemplos"   class="nl">Exemplos</a>
+    <a href="#exercicios" class="nl">Exercícios</a>
+  </div>
+  <a href="../index.html" class="nav-back">← disciplina</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="hero-tag">Capítulo 6 · Referência e exemplos</p>
+      <h1>Instruções para<br><em>tomada de decisão</em></h1>
+      <p class="hero-desc">
+        Desvios condicionais (<code style="font-family:var(--mono);color:var(--orange)">beq</code>, <code style="font-family:var(--mono);color:var(--orange)">bne</code>), incondicional (<code style="font-family:var(--mono);color:var(--orange)">j</code>), comparação (<code style="font-family:var(--mono);color:var(--orange)">slt</code>, <code style="font-family:var(--mono);color:var(--orange)">slti</code>), pseudo-instruções e tradução de estruturas C para assembly MIPS.
+      </p>
+    </div>
+    <div class="hero-aside">
+      Organização e Arquitetura<br>de Computadores<br>
+      ──<br>
+      <strong>UEPG · DEINFO</strong><br>
+      Prof. Dr. Luciano J. Senger<br>
+      ──<br>
+      MIPS R2000/R3000<br>
+      Simulador MARS
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+<!-- 01 INSTRUÇÕES -->
+<section id="instrucoes">
+  <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">Visão geral das instruções de decisão</span><span class="sec-rule"></span></div>
+  <p class="sec-desc">Além de instruções aritméticas e de movimentação de dados, um processador deve prover instruções que permitem alterar o fluxo de execução com base nos dados. Em alto nível, correspondem a <code style="font-family:var(--mono)">if/else</code> e laços <code style="font-family:var(--mono)">while</code>/<code style="font-family:var(--mono)">for</code>.</p>
+  <div class="instr-grid">
+    <div class="instr-card hl">
+      <div class="instr-mnem">beq</div>
+      <div class="instr-syn">beq $t1, $t2, endereço</div>
+      <div class="instr-name">Branch if Equal</div>
+      <div class="instr-desc">Desvia para <em>endereço</em> se $t1 == $t2. Caso contrário, execução continua normalmente na próxima linha.</div>
+      <span class="instr-tag tag-cond">condicional</span>
+    </div>
+    <div class="instr-card hl">
+      <div class="instr-mnem">bne</div>
+      <div class="instr-syn">bne $t1, $t2, endereço</div>
+      <div class="instr-name">Branch if Not Equal</div>
+      <div class="instr-desc">Desvia para <em>endereço</em> se $t1 ≠ $t2. Útil para laços e condicionais invertidos.</div>
+      <span class="instr-tag tag-cond">condicional</span>
+    </div>
+    <div class="instr-card hl">
+      <div class="instr-mnem">j</div>
+      <div class="instr-syn">j endereço</div>
+      <div class="instr-name">Jump (incondicional)</div>
+      <div class="instr-desc">Sempre desvia para <em>endereço</em>. Usado para implementar o bloco <code style="font-family:var(--mono)">else</code> e saída de laços.</div>
+      <span class="instr-tag tag-uncond">incondicional</span>
+    </div>
+    <div class="instr-card">
+      <div class="instr-mnem">slt</div>
+      <div class="instr-syn">slt $rd, $rs, $rt</div>
+      <div class="instr-name">Set if Less Than</div>
+      <div class="instr-desc">$rd ← 1 se $rs &lt; $rt, senão $rd ← 0. Não desvia — apenas marca o resultado para uso posterior.</div>
+      <span class="instr-tag tag-cmp">comparação</span>
+    </div>
+    <div class="instr-card">
+      <div class="instr-mnem">slti</div>
+      <div class="instr-syn">slti $rt, $rs, imm</div>
+      <div class="instr-name">Set if Less Than Immediate</div>
+      <div class="instr-desc">$rt ← 1 se $rs &lt; imm (valor imediato de 16 bits com sinal), senão $rt ← 0.</div>
+      <span class="instr-tag tag-cmp">comparação</span>
+    </div>
+    <div class="instr-card">
+      <div class="instr-mnem">jr</div>
+      <div class="instr-syn">jr $rs</div>
+      <div class="instr-name">Jump Register</div>
+      <div class="instr-desc">Desvia para o endereço contido no registrador $rs. Usado no retorno de subprogramas.</div>
+      <span class="instr-tag tag-uncond">incondicional</span>
+    </div>
+  </div>
+</section>
+
+<!-- 02 DESVIOS -->
+<section id="desvios">
+  <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Desvios condicionais e incondicionais</span><span class="sec-rule"></span></div>
+  <p class="sec-desc">O endereço de desvio em <code style="font-family:var(--mono)">beq</code> e <code style="font-family:var(--mono)">bne</code> é codificado como <strong>deslocamento relativo ao PC</strong> (16 bits, em words). O endereço em <code style="font-family:var(--mono)">j</code> é absoluto (26 bits). O programador escreve rótulos — o montador calcula os valores numéricos.</p>
+
+  <table class="ref-table" style="margin-bottom:20px">
+    <thead>
+      <tr>
+        <th style="width:190px">Instrução</th>
+        <th style="width:170px">Condição de desvio</th>
+        <th style="width:140px">Endereço</th>
+        <th>Uso típico</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="hl"><td><span class="code-o">beq $t1, $t2, rot</span></td><td>$t1 <strong>==</strong> $t2</td><td class="dim">relativo ao PC</td><td>if/else, condição de igualdade</td></tr>
+      <tr class="hl"><td><span class="code-o">bne $t1, $t2, rot</span></td><td>$t1 <strong>≠</strong> $t2</td><td class="dim">relativo ao PC</td><td>laços do-while, negação de condição</td></tr>
+      <tr><td><span class="code-o">j endereço</span></td><td>sempre</td><td class="dim">absoluto (26 bits)</td><td>pular bloco else, sair de laço</td></tr>
+      <tr><td><span class="code-o">jr $rs</span></td><td>sempre</td><td class="dim">conteúdo de $rs</td><td>retorno de subprograma</td></tr>
+    </tbody>
+  </table>
+
+  <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:12px;letter-spacing:.07em;margin-top:24px;">EXEMPLO — tradução de if/else com beq</div>
+  <div class="two-col">
+    <div class="c-block">
+      <div class="c-block-head">fragmento em C</div>
+      <pre><span class="ck">if</span> ( a == <span class="cv">0</span> ) {
+    a = b + <span class="cv">2</span>;
+} <span class="ck">else</span> {
+    a = b + <span class="cv">1</span>;
+}</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-block-head">assembly MIPS</div>
+      <pre><span class="ln"> 1</span><span class="k">lw</span>   <span class="r">$t0</span>, <span class="v">0</span>(<span class="r">$zero</span>)     <span class="c"># a → $t0</span>
+<span class="ln"> 2</span><span class="k">lw</span>   <span class="r">$t1</span>, <span class="v">4</span>(<span class="r">$zero</span>)     <span class="c"># b → $t1</span>
+<span class="ln"> 3</span><span class="k">beq</span>  <span class="r">$t0</span>, <span class="r">$zero</span>, <span class="lbl">entao</span>  <span class="c"># a==0 → entao</span>
+<span class="ln"> 4</span><span class="k">addi</span> <span class="r">$t0</span>, <span class="r">$t1</span>, <span class="v">1</span>       <span class="c"># else: a=b+1</span>
+<span class="ln"> 5</span><span class="k">j</span>    <span class="lbl">saida</span>              <span class="c"># pula bloco if</span>
+<span class="ln"> 6</span><span class="lbl">entao</span><span class="k">:</span>
+<span class="ln"> 7</span><span class="k">addi</span> <span class="r">$t0</span>, <span class="r">$t1</span>, <span class="v">2</span>       <span class="c"># if:   a=b+2</span>
+<span class="ln"> 8</span><span class="lbl">saida</span><span class="k">:</span>
+<span class="ln"> 9</span><span class="k">sw</span>   <span class="r">$t0</span>, <span class="v">0</span>(<span class="r">$zero</span>)     <span class="c"># salva a</span></pre>
+    </div>
+  </div>
+  <div class="info-card">
+    <strong>Dois fluxos possíveis:</strong> (a) se <code style="font-family:var(--mono)">beq</code> for verdadeiro → executa linha 7 (if). (b) se falso → executa linhas 4–5 (else) e o <code style="font-family:var(--mono)">j saida</code> garante que o bloco if não seja executado também.
+  </div>
+</section>
+
+<!-- 03 COMPARAÇÃO -->
+<section id="comparacao">
+  <div class="sec-head"><span class="sec-num">03</span><span class="sec-title">Instruções de comparação — slt e slti</span><span class="sec-rule"></span></div>
+  <p class="sec-desc"><code style="font-family:var(--mono)">beq</code> e <code style="font-family:var(--mono)">bne</code> só testam igualdade. Para comparações de menor/maior, o MIPS usa <code style="font-family:var(--mono)">slt</code>/<code style="font-family:var(--mono)">slti</code> para marcar o resultado em um registrador, seguido de <code style="font-family:var(--mono)">beq</code> ou <code style="font-family:var(--mono)">bne</code> para tomar a decisão.</p>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:10px;letter-spacing:.07em;">SLT — comparação entre registradores</div>
+      <table class="ref-table">
+        <thead><tr><th style="width:100px">Campo</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td class="dim">Sintaxe</td><td><span class="code-o">slt $rd, $rs, $rt</span></td></tr>
+          <tr><td class="dim">Operação</td><td class="mono">$rd ← ($rs &lt; $rt) ? 1 : 0</td></tr>
+          <tr><td class="dim">Tipo</td><td>Formato R</td></tr>
+          <tr><td class="dim">Desvio?</td><td class="dim">Não — apenas marca o resultado</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:10px;letter-spacing:.07em;">SLTI — comparação com imediato</div>
+      <table class="ref-table">
+        <thead><tr><th style="width:100px">Campo</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td class="dim">Sintaxe</td><td><span class="code-o">slti $rt, $rs, imm</span></td></tr>
+          <tr><td class="dim">Operação</td><td class="mono">$rt ← ($rs &lt; imm) ? 1 : 0</td></tr>
+          <tr><td class="dim">Tipo</td><td>Formato I (16 bits com sinal)</td></tr>
+          <tr><td class="dim">Desvio?</td><td class="dim">Não — apenas marca o resultado</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="font-size:11px;font-family:var(--mono);color:var(--ink3);margin-bottom:12px;letter-spacing:.07em;margin-top:24px;">EXEMPLO — if $t2 &lt; 32 then $t3 = 5</div>
+  <div class="two-col">
+    <div class="c-block">
+      <div class="c-block-head">fragmento em C</div>
+      <pre><span class="ck">if</span> ( t2 &lt; <span class="cv">32</span> ) {
+    t3 = <span class="cv">5</span>;
+}</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-block-head">assembly MIPS — padrão slti + beq</div>
+      <pre><span class="ln"> 1</span><span class="k">slti</span> <span class="r">$t4</span>, <span class="r">$t2</span>, <span class="v">32</span>     <span class="c"># $t4=1 se $t2&lt;32</span>
+<span class="ln"> 2</span><span class="k">beq</span>  <span class="r">$t4</span>, <span class="r">$zero</span>, <span class="lbl">saida</span>  <span class="c"># $t4==0 → pula</span>
+<span class="ln"> 3</span><span class="k">addi</span> <span class="r">$t3</span>, <span class="r">$zero</span>, <span class="v">5</span>    <span class="c"># $t3 = 5</span>
+<span class="ln"> 4</span><span class="lbl">saida</span><span class="k">:</span> <span class="c"># continua...</span></pre>
+    </div>
+  </div>
+  <div class="info-card">
+    <strong>Padrão slt + beq/bne:</strong> como o MIPS não tem instruções de desvio para &lt;, &gt;, ≤ ou ≥, o padrão é: (1) <code style="font-family:var(--mono)">slt</code>/<code style="font-family:var(--mono)">slti</code> coloca 0 ou 1 em registrador temporário; (2) <code style="font-family:var(--mono)">beq</code> ou <code style="font-family:var(--mono)">bne</code> toma a decisão com base nesse valor.
+  </div>
+</section>
+
+<!-- 04 PSEUDO -->
+<section id="pseudo">
+  <div class="sec-head"><span class="sec-num">04</span><span class="sec-title">Pseudo-instruções de comparação e desvio</span><span class="sec-rule"></span></div>
+  <p class="sec-desc">O montador MARS disponibiliza pseudo-instruções que combinam internamente <code style="font-family:var(--mono)">slt</code> + <code style="font-family:var(--mono)">beq</code>/<code style="font-family:var(--mono)">bne</code>. Cada pseudo-instrução (exceto <code style="font-family:var(--mono)">beqz</code>) é expandida em <strong>duas instruções reais</strong> pelo montador.</p>
+
+  <div style="border:1px solid var(--rule);border-radius:10px;overflow:hidden;">
+    <table class="pseudo-table" style="margin-bottom:0">
+      <thead>
+        <tr>
+          <th style="width:150px;padding-left:16px">Comparação em C</th>
+          <th style="width:240px">Pseudo-instrução MIPS</th>
+          <th>Instruções reais geradas pelo montador</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding-left:16px"><span class="eq-c">a == b</span></td><td><span class="eq-asm">beq $t0, $t1, entao</span></td><td class="dim">instrução real — 1 instrução</td></tr>
+        <tr><td style="padding-left:16px"><span class="eq-c">a != b</span></td><td><span class="eq-asm">bne $t0, $t1, entao</span></td><td class="dim">instrução real — 1 instrução</td></tr>
+        <tr><td style="padding-left:16px"><span class="eq-c">a &lt; b</span></td><td><span class="eq-asm">blt $t0, $t1, entao</span></td><td class="mono" style="font-size:12px">slt $at, $t0, $t1 &nbsp;·&nbsp; bne $at, $zero, entao</td></tr>
+        <tr><td style="padding-left:16px"><span class="eq-c">a &gt; b</span></td><td><span class="eq-asm">bgt $t0, $t1, entao</span></td><td class="mono" style="font-size:12px">slt $at, $t1, $t0 &nbsp;·&nbsp; bne $at, $zero, entao</td></tr>
+        <tr><td style="padding-left:16px"><span class="eq-c">a &lt;= b</span></td><td><span class="eq-asm">ble $t0, $t1, entao</span></td><td class="mono" style="font-size:12px">slt $at, $t1, $t0 &nbsp;·&nbsp; beq $at, $zero, entao</td></tr>
+        <tr><td style="padding-left:16px"><span class="eq-c">a &gt;= b</span></td><td><span class="eq-asm">bge $t0, $t1, entao</span></td><td class="mono" style="font-size:12px">slt $at, $t0, $t1 &nbsp;·&nbsp; beq $at, $zero, entao</td></tr>
+        <tr><td style="padding-left:16px"><span class="eq-c">a == 0</span></td><td><span class="eq-asm">beqz $t0, entao</span></td><td class="mono" style="font-size:12px">beq $t0, $zero, entao &nbsp;(1 instrução real)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="info-card">
+    <strong>Registrador $at ($1):</strong> o montador usa $at como temporário interno para expandir pseudo-instruções. <strong>Nunca use $at em seu código</strong> — ele pode ser sobrescrito pelo montador sem aviso.
+  </div>
+</section>
+
+<!-- 05 EXEMPLOS -->
+<section id="exemplos">
+  <div class="sec-head"><span class="sec-num">05</span><span class="sec-title">Exemplos completos comentados</span><span class="sec-rule"></span></div>
+  <p class="sec-desc">Programas prontos para testar no MARS. Convenção: <code style="font-family:var(--mono)">f, g → $t0, $t1</code> &nbsp;·&nbsp; <code style="font-family:var(--mono)">h → $t2</code>.</p>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <div class="code-block">
+      <div class="code-block-head">ex01 — if/else com beq (a == b)</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">a</span><span class="k">:</span> <span class="k">.word</span> <span class="v">0</span>
+<span class="ln"> 3</span><span class="lbl">b</span><span class="k">:</span> <span class="k">.word</span> <span class="v">7</span>
+<span class="ln"> 4</span><span class="k">.text</span>
+<span class="ln"> 5</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 6</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 7</span>    <span class="k">lw</span>  <span class="r">$t0</span>, <span class="lbl">a</span>
+<span class="ln"> 8</span>    <span class="k">lw</span>  <span class="r">$t1</span>, <span class="lbl">b</span>
+<span class="ln"> 9</span>    <span class="k">beq</span> <span class="r">$t0</span>,<span class="r">$zero</span>,<span class="lbl">entao</span>  <span class="c"># a==0?</span>
+<span class="ln">10</span>    <span class="k">addi</span> <span class="r">$t0</span>,<span class="r">$t1</span>,<span class="v">1</span>       <span class="c"># else: a=b+1</span>
+<span class="ln">11</span>    <span class="k">j</span>   <span class="lbl">saida</span>
+<span class="ln">12</span><span class="lbl">entao</span><span class="k">:</span>
+<span class="ln">13</span>    <span class="k">addi</span> <span class="r">$t0</span>,<span class="r">$t1</span>,<span class="v">2</span>       <span class="c"># if:   a=b+2</span>
+<span class="ln">14</span><span class="lbl">saida</span><span class="k">:</span>
+<span class="ln">15</span>    <span class="k">sw</span>  <span class="r">$t0</span>, <span class="lbl">a</span>
+<span class="ln">16</span>    <span class="k">move</span> <span class="r">$a0</span>,<span class="r">$t0</span>
+<span class="ln">17</span>    <span class="k">li</span>  <span class="r">$v0</span>,<span class="v">1</span> <span class="k">;</span> <span class="k">syscall</span>    <span class="c"># imprime a</span>
+<span class="ln">18</span>    <span class="k">li</span>  <span class="r">$v0</span>,<span class="v">10</span> <span class="k">;</span> <span class="k">syscall</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-head">ex02 — if/else com bgt (f > g)</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">f</span><span class="k">:</span> <span class="k">.word</span> <span class="v">10</span>
+<span class="ln"> 3</span><span class="lbl">g</span><span class="k">:</span> <span class="k">.word</span> <span class="v">8</span>
+<span class="ln"> 4</span><span class="lbl">h</span><span class="k">:</span> <span class="k">.word</span> <span class="v">0</span>
+<span class="ln"> 5</span><span class="k">.text</span>
+<span class="ln"> 6</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 7</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 8</span>    <span class="k">lw</span>  <span class="r">$t0</span>, <span class="lbl">f</span>
+<span class="ln"> 9</span>    <span class="k">lw</span>  <span class="r">$t1</span>, <span class="lbl">g</span>
+<span class="ln">10</span>    <span class="k">bgt</span> <span class="r">$t0</span>,<span class="r">$t1</span>,<span class="lbl">entao</span>    <span class="c"># f>g? (pseudo)</span>
+<span class="ln">11</span>    <span class="k">move</span> <span class="r">$t2</span>,<span class="r">$t1</span>         <span class="c"># else: h=g</span>
+<span class="ln">12</span>    <span class="k">j</span>   <span class="lbl">saida</span>
+<span class="ln">13</span><span class="lbl">entao</span><span class="k">:</span>
+<span class="ln">14</span>    <span class="k">sub</span> <span class="r">$t2</span>,<span class="r">$t0</span>,<span class="r">$t1</span>     <span class="c"># if: h=f-g</span>
+<span class="ln">15</span><span class="lbl">saida</span><span class="k">:</span>
+<span class="ln">16</span>    <span class="k">sw</span>  <span class="r">$t2</span>, <span class="lbl">h</span>
+<span class="ln">17</span>    <span class="k">move</span> <span class="r">$a0</span>,<span class="r">$t2</span>
+<span class="ln">18</span>    <span class="k">li</span>  <span class="r">$v0</span>,<span class="v">1</span> <span class="k">;</span> <span class="k">syscall</span>    <span class="c"># imprime h</span>
+<span class="ln">19</span>    <span class="k">li</span>  <span class="r">$v0</span>,<span class="v">10</span> <span class="k">;</span> <span class="k">syscall</span></pre>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="code-block">
+      <div class="code-block-head">ex03 — laço while com bge</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">n</span><span class="k">:</span> <span class="k">.word</span> <span class="v">5</span>       <span class="c"># conta até 5</span>
+<span class="ln"> 3</span><span class="k">.text</span>
+<span class="ln"> 4</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 5</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 6</span>    <span class="k">lw</span>  <span class="r">$t0</span>, <span class="lbl">n</span>     <span class="c"># $t0 = n</span>
+<span class="ln"> 7</span>    <span class="k">li</span>  <span class="r">$t1</span>, <span class="v">0</span>     <span class="c"># i = 0</span>
+<span class="ln"> 8</span><span class="lbl">loop</span><span class="k">:</span>
+<span class="ln"> 9</span>    <span class="k">bge</span> <span class="r">$t1</span>,<span class="r">$t0</span>,<span class="lbl">fim</span> <span class="c"># i>=n → sai</span>
+<span class="ln">10</span>    <span class="k">move</span> <span class="r">$a0</span>,<span class="r">$t1</span>
+<span class="ln">11</span>    <span class="k">li</span>  <span class="r">$v0</span>,<span class="v">1</span> <span class="k">;</span> <span class="k">syscall</span> <span class="c"># print i</span>
+<span class="ln">12</span>    <span class="k">addi</span> <span class="r">$t1</span>,<span class="r">$t1</span>,<span class="v">1</span> <span class="c"># i++</span>
+<span class="ln">13</span>    <span class="k">j</span>   <span class="lbl">loop</span>
+<span class="ln">14</span><span class="lbl">fim</span><span class="k">:</span>
+<span class="ln">15</span>    <span class="k">li</span>  <span class="r">$v0</span>,<span class="v">10</span> <span class="k">;</span> <span class="k">syscall</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-head">ex04 — detectar negativo via srl</div>
+      <pre><span class="ln"> 1</span><span class="k">.data</span>
+<span class="ln"> 2</span><span class="lbl">x</span><span class="k">:</span> <span class="k">.word</span> <span class="v">-13</span>   <span class="c"># valor a testar</span>
+<span class="ln"> 3</span><span class="lbl">a</span><span class="k">:</span> <span class="k">.word</span> <span class="v">0</span>
+<span class="ln"> 4</span><span class="k">.text</span>
+<span class="ln"> 5</span><span class="k">.globl</span> <span class="lbl">main</span>
+<span class="ln"> 6</span><span class="lbl">main</span><span class="k">:</span>
+<span class="ln"> 7</span>    <span class="k">lw</span>   <span class="r">$t0</span>, <span class="lbl">x</span>
+<span class="ln"> 8</span>    <span class="k">srl</span>  <span class="r">$t1</span>,<span class="r">$t0</span>,<span class="v">31</span>  <span class="c"># bit sinal→$t1</span>
+<span class="ln"> 9</span>    <span class="k">bne</span>  <span class="r">$t1</span>,<span class="r">$zero</span>,<span class="lbl">neg</span> <span class="c"># 1→negativo</span>
+<span class="ln">10</span>    <span class="k">li</span>   <span class="r">$t2</span>, <span class="v">10</span>     <span class="c"># positivo: a=10</span>
+<span class="ln">11</span>    <span class="k">j</span>    <span class="lbl">fim</span>
+<span class="ln">12</span><span class="lbl">neg</span><span class="k">:</span>
+<span class="ln">13</span>    <span class="k">li</span>   <span class="r">$t2</span>, <span class="v">5</span>      <span class="c"># negativo: a=5</span>
+<span class="ln">14</span><span class="lbl">fim</span><span class="k">:</span>
+<span class="ln">15</span>    <span class="k">sw</span>   <span class="r">$t2</span>, <span class="lbl">a</span>
+<span class="ln">16</span>    <span class="k">move</span> <span class="r">$a0</span>,<span class="r">$t2</span>
+<span class="ln">17</span>    <span class="k">li</span>   <span class="r">$v0</span>,<span class="v">1</span> <span class="k">;</span> <span class="k">syscall</span>
+<span class="ln">18</span>    <span class="k">li</span>   <span class="r">$v0</span>,<span class="v">10</span> <span class="k">;</span> <span class="k">syscall</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 06 EXERCÍCIOS -->
+<section id="exercicios">
+  <div class="sec-head"><span class="sec-num">06</span><span class="sec-title">Exercícios</span><span class="sec-rule"></span></div>
+
+  <div class="ex-list">
+    <div class="ex-card">
+      <div class="ex-label">Exercício 6.1 — relacione os termos</div>
+      <p class="ex-text">Itens: (1) instrução que sempre modifica o PC incondicionalmente &nbsp; (2) desvia se valores são iguais &nbsp; (3) rótulo &nbsp; (4) <code style="font-family:var(--mono)">slt</code> &nbsp; (5) <code style="font-family:var(--mono)">j fim</code> &nbsp; (6) <code style="font-family:var(--mono)">slti</code> &nbsp; (7) desvie para saída se $t0 &lt; $t1 &nbsp; (8) próxima instrução a ser executada<br><br>Preencha as lacunas com o item mais adequado:</p>
+      <div class="code-block">
+        <div class="code-block-head">lacunas</div>
+        <pre>( ) set if less than — marca 1 se menor que
+( ) PC (program counter)
+( ) j
+( ) comparação com valor imediato
+( ) marca endereço de memória
+( ) slt $at,$t0,$t1 seguido de bne $at,$zero,saida
+( ) beq
+( ) salto incondicional para o rótulo fim</pre>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-label">Exercício 6.2 — traduzir if/else com igualdade</div>
+      <p class="ex-text">Crie um programa assembly MIPS equivalente ao fragmento C. Use: <code style="font-family:var(--mono)">f: .word 10</code>, <code style="font-family:var(--mono)">g: .word 8</code>, <code style="font-family:var(--mono)">h: .word 5</code>.</p>
+      <div class="c-block">
+        <div class="c-block-head">fragmento C</div>
+        <pre><span class="ck">if</span> ( f == g ) {
+    h = h + <span class="cv">5</span>;
+} <span class="ck">else</span> {
+    h = h - <span class="cv">1</span>;
+}</pre>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-label">Exercício 6.3 — traduzir if/else com maior que</div>
+      <p class="ex-text">Crie um programa assembly MIPS equivalente ao fragmento C. Use: <code style="font-family:var(--mono)">f: .word 10</code>, <code style="font-family:var(--mono)">g: .word 8</code>, <code style="font-family:var(--mono)">h: .word 0</code>. <strong>Dica:</strong> use pseudo-instrução <code style="font-family:var(--mono)">bgt</code> ou o padrão <code style="font-family:var(--mono)">slt</code> + <code style="font-family:var(--mono)">bne</code>.</p>
+      <div class="c-block">
+        <div class="c-block-head">fragmento C</div>
+        <pre><span class="ck">if</span> ( f &gt; g ) {
+    h = f - g;
+} <span class="ck">else</span> {
+    h = g;
+}</pre>
+      </div>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-label">Exercício 6.4 — detectar número negativo</div>
+      <p class="ex-text">Crie um programa Assembly MIPS que detecte se o valor em memória é negativo usando <code style="font-family:var(--mono)">srl</code> e <code style="font-family:var(--mono)">beq</code> ou <code style="font-family:var(--mono)">bne</code>. Use o esqueleto: <code style="font-family:var(--mono)">x: .word -13</code>, <code style="font-family:var(--mono)">a: .word 0</code>.</p>
+      <p class="ex-text">Se negativo → armazene <strong>5</strong> em <code style="font-family:var(--mono)">a</code>. Se positivo → armazene <strong>10</strong>.</p>
+      <div class="info-card" style="margin-top:0">
+        <strong>Dica:</strong> em complemento de 2, o bit 31 é o sinal. <code style="font-family:var(--mono)">srl $t1, $t0, 31</code> move o bit de sinal para $t1. Se $t1 == 1, o número é negativo.
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>OAC · UEPG · DEINFO · Prof. Dr. Luciano J. Senger</span>
+  <span>Cap. 6 — Instruções para tomada de decisão · MIPS / MARS</span>
+</footer>
+
+</div>
+
+<script>
+const secs  = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.nl');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(a => a.classList.remove('active'));
+      const a = document.querySelector(`.nl[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
